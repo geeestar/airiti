@@ -1,6 +1,6 @@
 [package]
 name = "airiti"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Jonir Rings <peterpuyi@live.cn>"]
 description = "decode airiti image"
 edition = "2018"
@@ -9,8 +9,6 @@ edition = "2018"
 
 [dependencies]
 clap = { version = "2.33.3", features = [ "suggestions", "color" ] }
-env_logger = "0.8.3"
-log = "0.4.14"
 shellexpand = "2.1.0"
 
 # The release profile, used for `cargo build --release`.
