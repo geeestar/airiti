@@ -1,5 +1,6 @@
-use std::io::{Read, Write};
-use std::fs;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::fs;
+use std::path::Path;
 
 static HASHES: [[usize; 10]; 10] = [
     [0, 3, 5, 7, 8, 2, 9, 6, 1, 4],
@@ -40,16 +41,22 @@ pub(crate) fn parse_int(input: &str) -> Option<usize> {
         Err(_e) => None
     }
 }
-pub(crate) fn decode_files(i: &str, o: &str, page: usize) {
-    let mut input = fs::OpenOptions::new().read(true).open(i).unwrap();
-    let mut output = fs::OpenOptions::new().write(true).create(true).open(o).unwrap();
-    let mut input_buf = Vec::new();
-    if input.read_to_end(&mut input_buf).is_err() {
-        println!("Reading Error!");
-    };
-    let output_buf = decode(page, input_buf);
-    let r = output.write_all(&output_buf);
-    if r.is_err(){
-        println!("Writing error");
+
+pub(crate) async fn decode_files(i: &Path, o: &Path, page: usize) {
+    let input = fs::OpenOptions::new().read(true).open(i).await;
+    let output = fs::OpenOptions::new().write(true).create(true).open(o).await;
+    match (input, output) {
+        (Ok(mut input), Ok(mut output)) => {
+            let mut input_buf = Vec::new();
+            if input.read_to_end(&mut input_buf).await.is_err() {
+                println!("Reading Error!");
+            };
+            let output_buf = decode(page, input_buf);
+            let r = output.write_all(&output_buf).await;
+            if r.is_err() {
+                println!("Writing error");
+            }
+        }
+        _ => return
     }
 }
